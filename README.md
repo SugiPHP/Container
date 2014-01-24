@@ -1,6 +1,8 @@
 Container
 =========
 
+[![Build Status](https://travis-ci.org/SugiPHP/Container.png)](https://travis-ci.org/SugiPHP/Container)
+
 Container is able to store two different data types: objects (services) and parameters.
 
 Store values
