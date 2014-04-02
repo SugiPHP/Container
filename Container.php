@@ -101,7 +101,7 @@ class Container implements \ArrayAccess
 	 */
 	public function factory($idOrClosure)
 	{
-		if (is_object($idOrClosure) and method_exists($idOrClosure, "__invoke")) {
+		if (is_object($idOrClosure) && method_exists($idOrClosure, "__invoke")) {
 			$this->factories->attach($idOrClosure);
 
 			return $idOrClosure;
@@ -126,7 +126,7 @@ class Container implements \ArrayAccess
 	 */
 	public function raw($idOrClosure)
 	{
-		if (is_object($idOrClosure) and method_exists($idOrClosure, "__invoke")) {
+		if (is_object($idOrClosure) && method_exists($idOrClosure, "__invoke")) {
 			$this->raws->attach($idOrClosure);
 
 			return $idOrClosure;
