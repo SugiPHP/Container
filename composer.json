@@ -2,7 +2,7 @@
     "name": "sugiphp/container",
     "type": "library",
     "description": "SugiPHP Container Component",
-    "keywords": ["container", "sugiphp"],
+    "keywords": ["container"],
     "license": "MIT",
     "authors": [
         {
@@ -14,10 +14,9 @@
         "php": ">=5.3"
     },
     "autoload": {
-        "psr-0": {
+        "psr-4": {
             "SugiPHP\\Container\\": ""
         }
     },
-    "target-dir": "SugiPHP/Container",
     "minimum-stability": "dev"
 }
