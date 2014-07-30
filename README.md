@@ -2,7 +2,7 @@ Container
 =========
 
 [![Build Status](https://travis-ci.org/SugiPHP/Container.png)](https://travis-ci.org/SugiPHP/Container)
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/b1cfa7a6-b04e-45bc-8fab-5bef73a48c15/mini.png)](https://insight.sensiolabs.com/projects/b1cfa7a6-b04e-45bc-8fab-5bef73a48c15)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/SugiPHP/Container/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/SugiPHP/Container/?branch=master)
 
 
 Container is able to store two different data types: objects (services) and parameters.
