@@ -1,7 +1,9 @@
 Container
 =========
 
-[![Build Status](https://travis-ci.org/SugiPHP/Container.png)](https://travis-ci.org/SugiPHP/Container) [![SensioLabsInsight](https://insight.sensiolabs.com/projects/b1cfa7a6-b04e-45bc-8fab-5bef73a48c15/mini.png)](https://insight.sensiolabs.com/projects/b1cfa7a6-b04e-45bc-8fab-5bef73a48c15)
+[![Build Status](https://travis-ci.org/SugiPHP/Container.png)](https://travis-ci.org/SugiPHP/Container)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/b1cfa7a6-b04e-45bc-8fab-5bef73a48c15/mini.png)](https://insight.sensiolabs.com/projects/b1cfa7a6-b04e-45bc-8fab-5bef73a48c15)
+
 
 Container is able to store two different data types: objects (services) and parameters.
 
@@ -52,7 +54,7 @@ $container->set("rand", $container->factory(function() {
 
 $rand1 = $container->get("rand");
 $rand2 = $container->get("rand");
-// both values SHALL differ (unless your are extremely lucky)
+// both values will differ (unless your are extremely lucky)
 ?>
 ```
 

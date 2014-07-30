@@ -7,9 +7,12 @@
  * @license    http://opensource.org/licenses/mit-license.php (MIT License)
  */
 
-use SugiPHP\Container\Container;
+namespace SugiPHP\Container\Test;
 
-class MyClass {}
+use SugiPHP\Container\Container;
+use SugiPHP\Container\Exception as ContainerException;
+use PHPUnit_Framework_TestCase;
+use StdClass;
 
 class ContainerTest extends PHPUnit_Framework_TestCase
 {
@@ -29,10 +32,10 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	{
 		$container = new Container();
 		$container->set("param", "value");
-		$obj = new MyClass();
+		$obj = new StdClass();
 		$container->set("obj", $obj);
 		$container->set("closure", function () {
-			return new MyClass();
+			return new StdClass();
 		});
 		$container->set("null", null);
 
@@ -92,7 +95,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	public function testSetObject()
 	{
 		$container = new Container();
-		$obj = new MyClass();
+		$obj = new StdClass();
 		$container->set("obj", $obj);
 
 		$this->assertSame($obj, $container->get("obj"));
@@ -101,11 +104,11 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	public function testWithClosure()
 	{
 		$container = new Container();
-		$container->set("myclass", function() {
-			return new MyClass();
+		$container->set("StdClass", function() {
+			return new StdClass();
 		});
 
-		$this->assertInstanceOf("MyClass", $container->get("myclass"));
+		$this->assertInstanceOf("StdClass", $container->get("StdClass"));
 	}
 
 	public function testDelete()
@@ -134,14 +137,14 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 		$this->assertTrue(isset($container["param"]));
 		$this->assertSame("value", $container["param"]);
 
-		$obj = new MyClass();
+		$obj = new StdClass();
 		$container["obj"] = $obj;
 
 		$this->assertTrue(isset($container["obj"]));
 		$this->assertSame($obj, $container["obj"]);
 
 		$container["closure"] = function() {
-			return new MyClass();
+			return new StdClass();
 		};
 
 		$this->assertTrue(isset($container["closure"]));
@@ -165,7 +168,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 		$container["param"] = "value";
 		$container->set("one", 1);
 		$container->set("closure", function() {
-			return new MyClass();
+			return new StdClass();
 		});
 
 		foreach ($container as $key => $value) {
@@ -178,9 +181,9 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	{
 		$container = new Container();
 		$container["param"] = "value";
-		$container["obj"] = new MyClass();
+		$container["obj"] = new StdClass();
 		$container["closure"] = function () {
-			return new MyClass();
+			return new StdClass();
 		};
 		$container["null"] = null;
 
@@ -195,7 +198,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	{
 		$container = new Container();
 		$container->set("closure", function() {
-			return new MyClass();
+			return new StdClass();
 		});
 
 		$this->assertSame($container->get("closure"), $container->get("closure"));
@@ -205,7 +208,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	{
 		$container = new Container();
 		$container->set("closure", function() {
-			return new MyClass();
+			return new StdClass();
 		});
 
 		$this->assertEquals($container->factory("closure"), $container->factory("closure"));
@@ -238,7 +241,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 		$container->lock("param");
 		try {
 			$container->set("param", "foo");
-		} catch (SugiPHP\Container\Exception $e) {
+		} catch (ContainerException $e) {
 			//
 		}
 
@@ -262,7 +265,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 		$container->lock("param");
 		try {
 			$container->delete("param");
-		} catch (SugiPHP\Container\Exception $e) {
+		} catch (ContainerException $e) {
 			//
 		}
 		$this->assertSame("value", $container->get("param"));
@@ -300,21 +303,21 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	{
 		$container = new Container();
 		$container->set("closure", function() {
-			return new MyClass();
+			return new StdClass();
 		});
 
-		$MyClass = $container->raw("closure");
-		$this->assertInstanceOf("MyClass", $MyClass());
+		$StdClass = $container->raw("closure");
+		$this->assertInstanceOf("StdClass", $StdClass());
 
-		$this->assertEquals($MyClass(), $MyClass());
-		$this->assertNotSame($MyClass(), $MyClass());
+		$this->assertEquals($StdClass(), $StdClass());
+		$this->assertNotSame($StdClass(), $StdClass());
 	}
 
 	public function testSettingFactoryForClosures()
 	{
 		$container = new Container();
 		$container->set("closure", $container->factory(function() {
-			return new MyClass();
+			return new StdClass();
 		}));
 
 		$this->assertEquals($container->get("closure"), $container->get("closure"));
