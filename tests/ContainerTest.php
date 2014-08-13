@@ -7,7 +7,7 @@
  * @license    http://opensource.org/licenses/mit-license.php (MIT License)
  */
 
-namespace SugiPHP\Container\Test;
+namespace SugiPHP\Container;
 
 use SugiPHP\Container\Container;
 use SugiPHP\Container\Exception as ContainerException;
@@ -104,7 +104,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	public function testWithClosure()
 	{
 		$container = new Container();
-		$container->set("StdClass", function() {
+		$container->set("StdClass", function () {
 			return new StdClass();
 		});
 
@@ -143,7 +143,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 		$this->assertTrue(isset($container["obj"]));
 		$this->assertSame($obj, $container["obj"]);
 
-		$container["closure"] = function() {
+		$container["closure"] = function () {
 			return new StdClass();
 		};
 
@@ -167,7 +167,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 		$container["null"] = null;
 		$container["param"] = "value";
 		$container->set("one", 1);
-		$container->set("closure", function() {
+		$container->set("closure", function () {
 			return new StdClass();
 		});
 
@@ -197,7 +197,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	public function testGetSameClosureTwice()
 	{
 		$container = new Container();
-		$container->set("closure", function() {
+		$container->set("closure", function () {
 			return new StdClass();
 		});
 
@@ -207,7 +207,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	public function testGetFactory()
 	{
 		$container = new Container();
-		$container->set("closure", function() {
+		$container->set("closure", function () {
 			return new StdClass();
 		});
 
@@ -302,7 +302,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	public function testGetRawCanBeUsedForDefinigFreshObjects()
 	{
 		$container = new Container();
-		$container->set("closure", function() {
+		$container->set("closure", function () {
 			return new StdClass();
 		});
 
@@ -316,7 +316,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 	public function testSettingFactoryForClosures()
 	{
 		$container = new Container();
-		$container->set("closure", $container->factory(function() {
+		$container->set("closure", $container->factory(function () {
 			return new StdClass();
 		}));
 

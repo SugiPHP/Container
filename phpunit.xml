@@ -12,7 +12,7 @@
 >
     <testsuites>
         <testsuite name="SugiPHP Container Component Test Suite">
-            <directory>./Test/</directory>
+            <directory>./tests/</directory>
         </testsuite>
     </testsuites>
 </phpunit>
