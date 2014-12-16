@@ -1,10 +1,10 @@
 <?php
 /**
- * @package    SugiPHP
- * @subpackage Container
- * @category   tests
- * @author     Plamen Popov <tzappa@gmail.com>
- * @license    http://opensource.org/licenses/mit-license.php (MIT License)
+ * Tests for SugiPHP Container Class
+ *
+ * @package SugiPHP.Container
+ * @author  Plamen Popov <tzappa@gmail.com>
+ * @license http://opensource.org/licenses/mit-license.php (MIT License)
  */
 
 namespace SugiPHP\Container;

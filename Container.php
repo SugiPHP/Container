@@ -1,9 +1,10 @@
 <?php
 /**
- * @package    SugiPHP
- * @subpackage Container
- * @author     Plamen Popov <tzappa@gmail.com>
- * @license    http://opensource.org/licenses/mit-license.php (MIT License)
+ * SugiPHP Container Class
+ *
+ * @package SugiPHP.Container
+ * @author  Plamen Popov <tzappa@gmail.com>
+ * @license http://opensource.org/licenses/mit-license.php (MIT License)
  */
 
 namespace SugiPHP\Container;
@@ -61,7 +62,8 @@ class Container implements \ArrayAccess
 	/**
 	 * Fetches previously defined parameter or an object.
 	 *
-	 * @param  string $id
+	 * @param string $id
+	 *
 	 * @return mixed value, object or NULL if the parameter was not set
 	 */
 	public function get($id)
@@ -121,7 +123,8 @@ class Container implements \ArrayAccess
 	/**
 	 * Returns a raw definition. Used when a closure is set and you want to get the closure not the result of it.
 	 *
-	 * @param  string $idOrClosure
+	 * @param string $idOrClosure
+	 *
 	 * @return mixed Returns whatever it is stored in the key. NULL if nothing is stored.
 	 */
 	public function raw($idOrClosure)
@@ -142,7 +145,8 @@ class Container implements \ArrayAccess
 	/**
 	 * Checks parameter or object is defined.
 	 *
-	 * @param  string $id
+	 * @param string $id
+	 *
 	 * @return boolean
 	 */
 	public function has($id)
@@ -150,11 +154,11 @@ class Container implements \ArrayAccess
 		return array_key_exists($id, $this->definitions);
 	}
 
-    /**
-     * Unsets a parameter or an object.
-     *
-     * @param string $id
-     */
+	/**
+	 * Unsets a parameter or an object.
+	 *
+	 * @param string $id
+	 */
 	public function delete($id)
 	{
 		if (!empty($this->locks[$id])) {
@@ -177,11 +181,9 @@ class Container implements \ArrayAccess
 		$this->locks[$id] = true;
 	}
 
-	/*
-	 * Methods for \ArrayAccess
-	 */
-
 	/**
+	 * Method is needed to implement \ArrayAccess.
+	 *
 	 * @see set() method
 	 */
 	public function offsetSet($id, $value)
@@ -190,6 +192,8 @@ class Container implements \ArrayAccess
 	}
 
 	/**
+	 * Method is needed to implement \ArrayAccess.
+	 *
 	 * @see get() method
 	 */
 	public function offsetGet($id)
@@ -198,18 +202,22 @@ class Container implements \ArrayAccess
 	}
 
 	/**
+	 * Method is needed to implement \ArrayAccess.
+	 *
 	 * @see has() method
 	 */
-    public function offsetExists($id)
-    {
-    	return $this->has($id);
-    }
+	public function offsetExists($id)
+	{
+		return $this->has($id);
+	}
 
 	/**
+	 * Method is needed to implement \ArrayAccess.
+	 *
 	 * @see delete() method
 	 */
-    public function offsetUnset($id)
-    {
-    	$this->delete($id);
-    }
+	public function offsetUnset($id)
+	{
+		$this->delete($id);
+	}
 }
