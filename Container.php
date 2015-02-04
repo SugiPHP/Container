@@ -57,6 +57,8 @@ class Container implements \ArrayAccess
 			throw new Exception("Cannot override locked key {$id}");
 		}
 		$this->definitions[$id] = $value;
+		// unset on override
+		unset($this->objects[$id]);
 	}
 
 	/**
@@ -72,7 +74,7 @@ class Container implements \ArrayAccess
 			return null;
 		}
 
-		if (method_exists($this->definitions[$id], '__invoke')) {
+		if (method_exists($this->definitions[$id], "__invoke")) {
 			if (isset($this->raws[$this->definitions[$id]])) {
 				return $this->definitions[$id];
 			}

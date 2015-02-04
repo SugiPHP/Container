@@ -215,13 +215,48 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 		$this->assertNotSame($container->factory("closure"), $container->factory("closure"));
 	}
 
-	public function testOverriding()
+	public function testOverridingValueWithValue()
 	{
 		$container = new Container();
 		$container->set("param", "value");
 		$container->set("param", "other value");
 
 		$this->assertSame("other value", $container->get("param"));
+	}
+
+	public function testOverridingClosureWithValue()
+	{
+		$container = new Container();
+		$container->set("random", function () {
+			return rand(1, 9);
+		});
+		$this->assertInternalType("int", $container->get("random"));
+		$container->set("random", "a");
+		$this->assertSame("a", $container->get("random"));
+	}
+
+	public function testOverridingValueWithClosure()
+	{
+		$container = new Container();
+		$container->set("random", "a");
+		$this->assertSame("a", $container->get("random"));
+		$container->set("random", function () {
+			return rand(1, 9);
+		});
+		$this->assertInternalType("int", $container->get("random"));
+	}
+
+	public function testOverridingClosureWithClosure()
+	{
+		$container = new Container();
+		$container->set("random", function () {
+			return rand(1, 9);
+		});
+		$this->assertInternalType("int", $container->get("random"));
+		$container->set("random", function () {
+			return "pi=" . (3 +  0.14);
+		});
+		$this->assertSame("pi=3.14", $container->get("random"));
 	}
 
 	public function testOverridingLockedValue()
