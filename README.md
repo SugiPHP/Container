@@ -1,5 +1,5 @@
-Container
-=========
+DI Container
+============
 
 [![Build Status](https://travis-ci.org/SugiPHP/Container.png)](https://travis-ci.org/SugiPHP/Container)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/SugiPHP/Container/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/SugiPHP/Container/?branch=master)
