@@ -1,5 +1,5 @@
-DI Container
-============
+Simple PHP Dependency Injection Container System
+================================================
 
 [![Build Status](https://travis-ci.org/SugiPHP/Container.png)](https://travis-ci.org/SugiPHP/Container)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/SugiPHP/Container/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/SugiPHP/Container/?branch=master)
@@ -132,6 +132,9 @@ values using array notation
 <?php
 $container["foo"] = "bar";
 echo $container["foo"]; // prints bar
+$container["pdo"] = function () {
+    return new PDO("mysql:dbname=testdb;host=127.0.0.1", "user", "pass");
+};
 $db = $container["pdo"]; // returns instance of the PDO class
 // checking for existence
 isset($container["foo"]); // TRUE

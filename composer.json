@@ -1,7 +1,7 @@
 {
     "name": "sugiphp/container",
     "type": "library",
-    "description": "SugiPHP Container Component",
+    "description": "Simple PHP Dependency Injection Container System",
     "keywords": ["container"],
     "license": "MIT",
     "authors": [
