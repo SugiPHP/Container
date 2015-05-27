@@ -1,14 +1,19 @@
-Simple PHP Dependency Injection Container System
-================================================
+# Simple PHP Dependency Injection Container System
 
 [![Build Status](https://travis-ci.org/SugiPHP/Container.png)](https://travis-ci.org/SugiPHP/Container)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/SugiPHP/Container/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/SugiPHP/Container/?branch=master)
 
+## Installation
+
+```bash
+composer require sugiphp/container ~1.0
+```
+
+## Usage
 
 Container is able to store two different data types: objects (services) and parameters.
 
-Store values
-------------
+### Store values
 
 ```php
 <?php
@@ -22,8 +27,7 @@ $container->set("pdo", function() {
 ?>
 ```
 
-Get previously stored values and objects
-----------------------------------------
+### Get previously stored values and objects
 
 ```php
 <?php
@@ -42,8 +46,7 @@ $db4 = $container->get("pdo"); // will return same instance as the first one ($d
 ?>
 ```
 
-Always get fresh copies (new instances)
----------------------------------------
+#### Always get fresh copies (new instances)
 
 ```php
 <?php
@@ -58,8 +61,7 @@ $rand2 = $container->get("rand");
 ?>
 ```
 
-Get stored closures as they were stored
----------------------------------------
+#### Get stored closures as they were stored
 
 ```php
 <?php
@@ -69,8 +71,8 @@ $db = $closure();
 ?>
 ```
 
-Always get raw services
------------------------
+#### Always get raw services
+
 ```php
 <?php
 $container->set("name", $container->raw(function() {
@@ -82,8 +84,8 @@ is_string($container->get("name")); // FALSE
 ?>
 ```
 
-Checking existence of a key
----------------------------
+### Checking existence of a key
+
 ```php
 <?php
 $container->set("null", NULL);
@@ -96,13 +98,12 @@ $container->has("unset"); // FALSE
 ?>
 ```
 
-Deleting keys
--------------
+### Deleting keys
+
 To delete a previously stored key use `delete($key)` method
 
+### Overriding keys and locking them
 
-Overriding keys and locking them
---------------------------------
 ```php
 <?php
 // set a "name"
@@ -123,8 +124,8 @@ $container->delete("name"); // will throw an SugiPHP\Container\Exception
 Note that there is no `unlock()` method.
 
 
-Set/Get values with array notation
-----------------------------------
+## Using Container as Array
+
 Container implements build in PHP ArrayAccess class, which means that you can store, fetch, check and delete
 values using array notation
 
