@@ -2,7 +2,7 @@
     "name": "sugiphp/container",
     "type": "library",
     "description": "Simple PHP Dependency Injection Container System",
-    "keywords": ["container"],
+    "keywords": ["dependency injection", "container"],
     "license": "MIT",
     "authors": [
         {
