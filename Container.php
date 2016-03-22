@@ -29,12 +29,12 @@ class Container implements \ArrayAccess
     /**
      * Table of all closures that should always return fresh objects.
      */
-    protected $factories = array();
+    protected $factories;
 
     /**
      * Table of closures that get() method should always return raw results
      */
-    protected $raws = array();
+    protected $raws;
 
     /**
      * Table of locked keys that cannot be overridden and deleted
@@ -48,6 +48,26 @@ class Container implements \ArrayAccess
     {
         $this->factories = new \SplObjectStorage();
         $this->raws = new \SplObjectStorage();
+    }
+
+    public function __set($name, $value)
+    {
+        return $this->set($name, $value);
+    }
+
+    public function __get($name)
+    {
+        return $this->get($name);
+    }
+
+    public function __isset($name)
+    {
+        return $this->has($name);
+    }
+
+    public function __unset($name)
+    {
+        return $this->delete($name);
     }
 
     /**

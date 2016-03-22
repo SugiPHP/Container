@@ -372,7 +372,32 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 
         $container->get("mock");
         $container->get("mock");
-        $container->get("mock");
-        $container->get("mock");
+    }
+
+    public function testPropertyOverloading()
+    {
+        $container = new Container();
+        $this->assertFalse($container->has("test"));
+        $this->assertFalse(isset($container->test));
+        $container->test = function () {
+            return ["foo", "bar"];
+        };
+        $this->assertTrue($container->has("test"));
+        $this->assertTrue(isset($container->test));
+        $this->assertTrue(isset($container["test"]));
+        $this->assertEquals(["foo", "bar"], $container->test);
+        $this->assertEquals(["foo", "bar"], $container["test"]);
+        $this->assertEquals(["foo", "bar"], $container->get("test"));
+    }
+
+    public function testPropertyUnset()
+    {
+        $container = new Container();
+        $container->test = function () {
+            return ["foo", "bar"];
+        };
+        unset($container->test);
+        $this->assertFalse($container->has("test"));
+        $this->assertFalse(isset($container->test));
     }
 }
