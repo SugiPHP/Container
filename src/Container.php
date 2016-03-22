@@ -1,7 +1,5 @@
 <?php
 /**
- * SugiPHP Container Class
- *
  * @package SugiPHP.Container
  * @author  Plamen Popov <tzappa@gmail.com>
  * @license http://opensource.org/licenses/mit-license.php (MIT License)
@@ -50,31 +48,63 @@ class Container implements \ArrayAccess
         $this->raws = new \SplObjectStorage();
     }
 
+    /**
+     * Property overloading magic method.
+     *
+     * @param string $name  Parameter name
+     * @param mixed  $value The value to be assigned for the parameter
+     *
+     * @return void
+     */
     public function __set($name, $value)
     {
         return $this->set($name, $value);
     }
 
+    /**
+     * Property overloading magic method.
+     *
+     * @param string $name Parameter name
+     *
+     * @return mixed
+     */
     public function __get($name)
     {
         return $this->get($name);
     }
 
+    /**
+     * Property overloading magic method.
+     *
+     * @param string $name Parameter name
+     *
+     * @return boolean
+     */
     public function __isset($name)
     {
         return $this->has($name);
     }
 
+    /**
+     * Property overloading magic method.
+     *
+     * @param string $name Parameter name
+     *
+     * @return void
+     */
     public function __unset($name)
     {
         return $this->delete($name);
     }
 
     /**
-     * Sets a parameter defined in an unique key ID. You can set objects as a closures.
+     * Sets a parameter defined in an unique key ID.
+     * You can set objects as a closures.
      *
-     * @param string $id
-     * @param mixed $value Value or closure function
+     * @param string $id    Key Name
+     * @param mixed  $value Value or closure function
+     *
+     * @return void
      */
     public function set($id, $value)
     {
@@ -90,7 +120,7 @@ class Container implements \ArrayAccess
     /**
      * Fetches previously defined parameter or an object.
      *
-     * @param string $id
+     * @param string $id Key Name
      *
      * @return mixed value, object or NULL if the parameter was not set
      */
@@ -124,11 +154,13 @@ class Container implements \ArrayAccess
 
     /**
      * Gets or sets callable to return fresh objects.
-     * If a callable is given, then it sets that the get() method always to return new objects.
-     * If an string (key ID's) is given, then it will return new object.
+     * If a callable is given, then it sets that the get() method always
+     * to return new objects. If an string (key ID's) is given, then it
+     * will return new object.
      *
      * @param mixed $idOrClosure
-     * @param mixed
+     *
+     * @return mixed
      */
     public function factory($idOrClosure)
     {
@@ -150,11 +182,13 @@ class Container implements \ArrayAccess
     }
 
     /**
-     * Returns a raw definition. Used when a closure is set and you want to get the closure not the result of it.
+     * Returns a raw definition. Used when a closure is set and
+     * you want to get the closure not the result of it.
      *
      * @param string $idOrClosure
      *
-     * @return mixed Returns whatever it is stored in the key. NULL if nothing is stored.
+     * @return mixed Returns whatever it is stored in the key. NULL if
+     * nothing is stored.
      */
     public function raw($idOrClosure)
     {
@@ -187,6 +221,8 @@ class Container implements \ArrayAccess
      * Unsets a parameter or an object.
      *
      * @param string $id
+     *
+     * @return void
      */
     public function delete($id)
     {
@@ -204,6 +240,8 @@ class Container implements \ArrayAccess
      * Note that there is no unlock method and will never be!
      *
      * @param string $id
+     *
+     * @return mixed
      */
     public function lock($id)
     {
