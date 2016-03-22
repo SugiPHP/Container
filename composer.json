@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SugiPHP\\Container\\": ""
+            "SugiPHP\\Container\\": "src/"
         }
     }
 }

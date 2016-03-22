@@ -207,12 +207,17 @@ class ContainerTest extends PHPUnit_Framework_TestCase
     public function testGetFactory()
     {
         $container = new Container();
+        $this->assertNull($container->factory("closure"));
+
         $container->set("closure", function () {
             return new StdClass();
         });
 
         $this->assertEquals($container->factory("closure"), $container->factory("closure"));
         $this->assertNotSame($container->factory("closure"), $container->factory("closure"));
+
+        $container->set("id", 4);
+        $this->assertSame(4, $container->factory("id"));
     }
 
     public function testOverridingValueWithValue()
