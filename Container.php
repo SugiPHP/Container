@@ -196,12 +196,12 @@ class Container implements \ArrayAccess
         if (is_object($this->definitions[$id])) {
             unset($this->factories[$this->definitions[$id]]);
         }
-        unset($this->definitions[$id], $this->objects[$id]);
+        unset($this->definitions[$id], $this->objects[$id], $this->calcs[$id]);
     }
 
     /**
      * Lock the key, so it cannot be overwritten.
-     * Note that there is no unlock method and will never have!
+     * Note that there is no unlock method and will never be!
      *
      * @param string $id
      */
