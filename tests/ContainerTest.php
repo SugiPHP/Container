@@ -380,21 +380,21 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($container->has("test"));
         $this->assertFalse(isset($container->test));
         $container->test = function () {
-            return ["foo", "bar"];
+            return array("foo", "bar");
         };
         $this->assertTrue($container->has("test"));
         $this->assertTrue(isset($container->test));
         $this->assertTrue(isset($container["test"]));
-        $this->assertEquals(["foo", "bar"], $container->test);
-        $this->assertEquals(["foo", "bar"], $container["test"]);
-        $this->assertEquals(["foo", "bar"], $container->get("test"));
+        $this->assertEquals(array("foo", "bar"), $container->test);
+        $this->assertEquals(array("foo", "bar"), $container["test"]);
+        $this->assertEquals(array("foo", "bar"), $container->get("test"));
     }
 
     public function testPropertyUnset()
     {
         $container = new Container();
         $container->test = function () {
-            return ["foo", "bar"];
+            return array("foo", "bar");
         };
         unset($container->test);
         $this->assertFalse($container->has("test"));
