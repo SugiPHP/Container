@@ -22,6 +22,11 @@ class Container implements \ArrayAccess
     protected $objects = array();
 
     /**
+     * Table of generated objects
+     */
+    protected $calcs = array();
+
+    /**
      * Table of all closures that should always return fresh objects.
      */
     protected $factories = array();
@@ -57,6 +62,7 @@ class Container implements \ArrayAccess
             throw new Exception("Cannot override locked key {$id}");
         }
         $this->definitions[$id] = $value;
+        $this->calcs[$id] = false;
         // unset on override
         unset($this->objects[$id]);
     }
@@ -83,11 +89,12 @@ class Container implements \ArrayAccess
                 return $this->definitions[$id]();
             }
 
-            if (isset($this->objects[$id])) {
+            if ($this->calcs[$id]) {
                 return $this->objects[$id];
             }
             $obj = $this->definitions[$id]();
             $this->objects[$id] = $obj;
+            $this->calcs[$id] = true;
 
             return $obj;
         }
