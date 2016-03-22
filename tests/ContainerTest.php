@@ -358,4 +358,21 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($container->get("closure"), $container->get("closure"));
         $this->assertNotSame($container->get("closure"), $container->get("closure"));
     }
+
+    public function testOnlyOnceOnNull()
+    {
+        $dummy = $this->getMock("StdClass", array("execute"));
+        $dummy->expects($this->once())
+            ->method("execute")
+            ->will($this->returnValue(null));
+        $container = new Container();
+        $container->set("mock", function () use ($dummy) {
+            return $dummy->execute();
+        });
+
+        $container->get("mock");
+        $container->get("mock");
+        $container->get("mock");
+        $container->get("mock");
+    }
 }
