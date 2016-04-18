@@ -405,4 +405,11 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($container->has("test"));
         $this->assertFalse(isset($container->test));
     }
+
+    public function testEmpty()
+    {
+        $container = new Container();
+        $container->test = "test";
+        $this->assertFalse(empty($container->test));
+    }
 }
