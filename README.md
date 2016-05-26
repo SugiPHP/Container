@@ -1,12 +1,13 @@
-# PHP Dependency Injection Container
+# SugiPHP Container
 
 [![Build Status](https://travis-ci.org/SugiPHP/Container.png)](https://travis-ci.org/SugiPHP/Container)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/SugiPHP/Container/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/SugiPHP/Container/?branch=master)
+
+Version 2 of the SugiPHP Container implements [`ContainerInterface`](https://github.com/container-interop/container-interop/blob/master/src/Interop/Container/ContainerInterface.php)
 
 ## Installation
 
-```bash
-composer require sugiphp/container ~1.0
+```shell
+composer require sugiphp/container ~2.0
 ```
 
 ## Usage

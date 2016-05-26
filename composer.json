@@ -11,8 +11,11 @@
         }
     ],
     "require": {
-        "php": ">=5.3",
+        "php": ">=5.5",
         "container-interop/container-interop": "^1.1"
+    },
+    "provide": {
+        "container-interop/container-interop-implementation": "^1.1"
     },
     "autoload": {
         "psr-4": {

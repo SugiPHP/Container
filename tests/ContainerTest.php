@@ -12,13 +12,19 @@ namespace SugiPHP\Container;
 use SugiPHP\Container\Container;
 use SugiPHP\Container\ContainerException;
 use SugiPHP\Container\NotFoundException;
+use Interop\Container\ContainerInterface;
 use StdClass;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
     public function testContainerCanBeCreated()
     {
-        $this->assertInstanceOf("SugiPHP\Container\Container", new Container());
+        $this->assertInstanceOf(Container::class, new Container());
+    }
+
+    public function testContainerImplementsContainerInteropInterface()
+    {
+        $this->assertInstanceOf(ContainerInterface::class, new Container());
     }
 
     public function testGetWithoutSetReturnsNull()
