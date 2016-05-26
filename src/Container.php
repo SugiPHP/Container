@@ -7,7 +7,10 @@
 
 namespace SugiPHP\Container;
 
-class Container implements \ArrayAccess
+use ArrayAccess;
+use Interop\Container\ContainerInterface;
+
+class Container implements ArrayAccess, ContainerInterface
 {
     /**
      * Table of Definitions
@@ -109,7 +112,7 @@ class Container implements \ArrayAccess
     public function set($id, $value)
     {
         if (!empty($this->locks[$id])) {
-            throw new Exception("Cannot override locked key {$id}");
+            throw new ContainerException("Cannot override locked key {$id}");
         }
         $this->definitions[$id] = $value;
         $this->calcs[$id] = false;
@@ -118,16 +121,19 @@ class Container implements \ArrayAccess
     }
 
     /**
-     * Fetches previously defined parameter or an object.
+     * Finds an entry of the container by its identifier and returns it.
      *
-     * @param string $id Key Name
+     * @param string $id Identifier of the entry to look for.
      *
-     * @return mixed value, object or NULL if the parameter was not set
+     * @throws NotFoundException  No entry was found for this identifier.
+     * @throws ContainerException Error while retrieving the entry.
+     *
+     * @return mixed Entry.
      */
     public function get($id)
     {
-        if (!isset($this->definitions[$id])) {
-            return null;
+        if (!$this->has($id)) {
+            throw new NotFoundException("No entry was found for the identifier '$id'");
         }
 
         if (method_exists($this->definitions[$id], "__invoke")) {
@@ -206,9 +212,10 @@ class Container implements \ArrayAccess
     }
 
     /**
-     * Checks parameter or object is defined.
+     * Returns true if the container can return an entry for the given identifier.
+     * Returns false otherwise.
      *
-     * @param string $id
+     * @param string $id Identifier of the entry to look for.
      *
      * @return boolean
      */
@@ -227,7 +234,7 @@ class Container implements \ArrayAccess
     public function delete($id)
     {
         if (!empty($this->locks[$id])) {
-            throw new Exception("Cannot delete locked key {$id}");
+            throw new ContainerException("Cannot delete locked key {$id}");
         }
         if (is_object($this->definitions[$id])) {
             unset($this->factories[$this->definitions[$id]]);

@@ -10,11 +10,11 @@
 namespace SugiPHP\Container;
 
 use SugiPHP\Container\Container;
-use SugiPHP\Container\Exception as ContainerException;
-use PHPUnit_Framework_TestCase;
+use SugiPHP\Container\ContainerException;
+use SugiPHP\Container\NotFoundException;
 use StdClass;
 
-class ContainerTest extends PHPUnit_Framework_TestCase
+class ContainerTest extends \PHPUnit_Framework_TestCase
 {
     public function testContainerCanBeCreated()
     {
@@ -25,6 +25,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
     {
         $container = new Container();
 
+        $this->setExpectedException(NotFoundException::class);
         $this->assertNull($container->get("param"));
     }
 
@@ -118,7 +119,6 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($container->has("param"));
         $this->assertSame("value", $container->get("param"));
         $container->delete("param");
-        $this->assertNull($container->get("param"));
         $this->assertFalse($container->has("param"));
     }
 
@@ -126,7 +126,6 @@ class ContainerTest extends PHPUnit_Framework_TestCase
     {
         $container = new Container();
         $this->assertFalse(isset($container["param"]));
-        $this->assertNull($container["param"]);
 
         $container["null"] = null;
         $this->assertTrue(isset($container["null"]));
@@ -152,13 +151,9 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 
         unset($container["param"], $container["obj"], $container["closure"], $container["null"]);
         $this->assertFalse(isset($container["param"]));
-        $this->assertNull($container["param"]);
         $this->assertFalse(isset($container["obj"]));
-        $this->assertNull($container["obj"]);
         $this->assertFalse(isset($container["closure"]));
-        $this->assertNull($container["closure"]);
         $this->assertFalse(isset($container["null"]));
-        $this->assertNull($container["null"]);
     }
 
     public function testIteratable()
@@ -270,7 +265,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $container->set("param", "value");
 
         $container->lock("param");
-        $this->setExpectedException("SugiPHP\Container\Exception");
+        $this->setExpectedException(ContainerException::class);
         $container->set("param", "foo");
     }
 
@@ -294,7 +289,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $container = new Container();
         $container->set("param", "value");
         $container->lock("param");
-        $this->setExpectedException("SugiPHP\Container\Exception");
+        $this->setExpectedException(ContainerException::class);
         $container->delete("param");
     }
 

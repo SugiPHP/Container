@@ -9,6 +9,6 @@
 
 namespace SugiPHP\Container;
 
-class Exception extends \Exception
+class NotFoundException extends ContainerException implements \Interop\Container\Exception\NotFoundException
 {
 }
