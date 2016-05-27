@@ -128,10 +128,9 @@ $container->delete("name"); // will throw ContainerException
 Note that there is no `unlock()` method.
 
 
-## Using Container as Array
+## Array Access
 
-Container implements build in PHP ArrayAccess class, which means that you can store, fetch, check and delete
-values using array notation
+Container implements build in PHP ArrayAccess class, which means that you can store, fetch, check and delete values using array notation
 
 ```php
 <?php
@@ -149,7 +148,21 @@ unset("foo");
 isset($container["foo"]); // FALSE
 ?>
 ```
-Note that unlike typical arrays where trying to get a key which is not set will throw an error, container
-will remain silent and will return NULL.
+Note that unlike typical arrays where trying to get a key which is not set will throw an error, container will remain silent and will return NULL.
 
 You can use `foreach` construct as well.
+
+## Property Access
+
+Container uses magic `__set` and `__get` methods to allow access via properties
+
+```php
+$container->set("foo") = "bar";
+$container["foo"] = "bar";
+$container->foo = "bar";
+// All of the above are doing the same job
+
+$container->get("foo"); // "bar"
+$container["foo"]; // "bar"
+$container->foo; // "bar"
+```
