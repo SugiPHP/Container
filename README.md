@@ -37,7 +37,7 @@ $container->set("pdo", function() {
 ```php
 <?php
 $container->get("param"); // returns "value"
-$container->get("unset"); // returns NULL since no 'unset' key were stored
+$container->get("unset"); // will throw an NotFoundException
 $db = $container->get("pdo"); // returns instance of a PDO (not the closure itself, but the result);
 // later in a code...
 $db1 = $container->get("pdo"); // returns the SAME instance of the PDO (not new instance!) ($db1 === $db)
@@ -45,7 +45,7 @@ $db1 = $container->get("pdo"); // returns the SAME instance of the PDO (not new 
 // if you need a new instance of the PDO you can force it with factory() method
 $db2 = $container->factory("pdo"); // returns new instance of the PDO.
 // the second instance is not stored in a container, so if you use factory again
-$db3 = $container->fectory("pdo"); // you'll get third instance which is different from the instances above
+$db3 = $container->factory("pdo"); // you'll get third instance which is different from the instances above
 
 $db4 = $container->get("pdo"); // will return same instance as the first one ($db4 === $db === $db1)
 ?>
@@ -93,11 +93,10 @@ is_string($container->get("name")); // FALSE
 
 ```php
 <?php
+$container->set("param", "value");
 $container->set("null", NULL);
-$container->get("null"); // will return NULL
-$container->get("unset"); // will also return NULL
-// to check if a NULL is set or the key is not set at all use has() method
 
+$container->has("param"); // TRUE
 $container->has("null"); // TRUE
 $container->has("unset"); // FALSE
 ?>
@@ -121,9 +120,9 @@ $container->get("name"); // "John Doe"
 // lock a key
 $container->lock("name");
 // now if you try to override "name"
-$container->set("name", "Foo Bar"); // will throw an SugiPHP\Container\Exception
+$container->set("name", "Foo Bar"); // will throw ContainerException
 // or try to delete that key
-$container->delete("name"); // will throw an SugiPHP\Container\Exception
+$container->delete("name"); // will throw ContainerException
 ?>
 ```
 Note that there is no `unlock()` method.
