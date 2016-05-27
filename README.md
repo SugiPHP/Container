@@ -7,7 +7,11 @@ Version 2 of the SugiPHP Container implements [`ContainerInterface`](https://git
 ## Installation
 
 ```shell
+# stable version (when available)
 composer require sugiphp/container ~2.0
+
+# development
+composer require sugiphp/container ~2.@dev
 ```
 
 ## Usage
