@@ -1,168 +1,214 @@
-# SugiPHP Container
+# SugiPHP\Container
 
-[![Build Status](https://travis-ci.org/SugiPHP/Container.png)](https://travis-ci.org/SugiPHP/Container)
+**Version 3.0** — PSR-11 compatible dependency injection container.
 
-Version 2 of the SugiPHP Container implements [`ContainerInterface`](https://github.com/container-interop/container-interop/blob/master/src/Interop/Container/ContainerInterface.php)
+There are three classes, each adding one capability on top of the previous:
+
+- **`Container`** — plain PSR-11 storage: `set()` / `get()` / `has()` / `delete()` / `lock()`.
+  A closure definition is invoked fresh on every `get()` call — nothing is cached.
+- **`Resolver`** — extends `Container` and adds singleton caching, `setFactory()`
+  (opt a specific id out of caching), `make()` (bypass the cache for one call),
+  and `bind()` (resolve one id to another).
+- **`Injector`** — extends `Resolver` and adds reflection-based autowiring:
+  an id that is neither registered nor bound is constructed automatically if
+  it names an instantiable class.
+
+Pick the class that matches what you need — a `Resolver` for singleton
+services without reflection, an `Injector` for full autowiring.
+
+## Features
+
+- Get and set values, objects, and closures by string key
+- `Resolver` caches closure results as singletons
+- `setFactory()` — register a closure so each `get()` call returns a fresh instance
+- `make()` — resolve an id right now, bypassing the singleton cache for that one call
+- `bind()` — resolve one id by getting another instead
+- `lock()` — prevent a key from being overwritten or deleted
+- `Injector` automatically resolves classes and their dependencies via reflection
+- Implements `Psr\Container\ContainerInterface`
 
 ## Installation
 
-```shell
-# stable version (when available)
-composer require sugiphp/container ~2.0
+```php
+use SugiPHP\Container\Container;
 
-# development
-composer require sugiphp/container ~2.@dev
+$c = new Container();
 ```
 
 ## Usage
 
-Container is able to store two different data types: objects (services) and parameters.
-
-### Store values
+### Scalar values
 
 ```php
-<?php
-$container = new Container();
-// store a parameter
-$container->set("param", "value");
-// store an object
-$container->set("pdo", function() {
-	return new PDO("mysql:dbname=testdb;host=127.0.0.1", "user", "pass");
+$c->set('debug', true);
+$c->get('debug'); // true
+
+$c->set('dsn', 'mysql:host=localhost;dbname=app');
+$c->get('dsn'); // 'mysql:host=localhost;dbname=app'
+$c->has('dsn'); // true
+$c->delete('dsn');
+```
+
+### Objects
+
+```php
+$c->set('db', new PDO($c->get('dsn')));
+$c->get('db'); // the PDO instance
+```
+
+### Closures
+
+`Container` invokes a closure definition fresh on every `get()` call:
+
+```php
+$c = new Container();
+$c->set('db', function () use ($c) {
+    return new PDO($c->get('dsn'));
 });
-?>
+
+$c->get('db') === $c->get('db'); // false — a new instance every call
 ```
 
-### Get previously stored values and objects
+Use `Resolver` when you want the result cached as a singleton instead:
 
 ```php
-<?php
-$container->get("param"); // returns "value"
-$container->get("unset"); // will throw an NotFoundException
-$db = $container->get("pdo"); // returns instance of a PDO (not the closure itself, but the result);
-// later in a code...
-$db1 = $container->get("pdo"); // returns the SAME instance of the PDO (not new instance!) ($db1 === $db)
+use SugiPHP\Container\Resolver;
 
-// if you need a new instance of the PDO you can force it with factory() method
-$db2 = $container->factory("pdo"); // returns new instance of the PDO.
-// the second instance is not stored in a container, so if you use factory again
-$db3 = $container->factory("pdo"); // you'll get third instance which is different from the instances above
+$c = new Resolver();
+$c->set('db', function () use ($c) {
+    return new PDO($c->get('dsn'));
+});
 
-$db4 = $container->get("pdo"); // will return same instance as the first one ($db4 === $db === $db1)
-?>
+$c->get('db') === $c->get('db'); // true — same instance
 ```
 
-#### Always get fresh copies (new instances)
+### Factory (fresh instance each call, on a Resolver)
 
 ```php
-<?php
-// Wrap closure in factory method
-$container->set("rand", $container->factory(function() {
-	return mt_rand();
-}));
+// Register a closure so each get() returns a new instance, even through a Resolver
+$c->setFactory('request', function () {
+    return new Request();
+});
 
-$rand1 = $container->get("rand");
-$rand2 = $container->get("rand");
-// both values will differ (unless your are extremely lucky)
-?>
+$c->get('request') === $c->get('request'); // false — new instance each time
 ```
 
-#### Get stored closures as they were stored
+### Make (bypass the singleton cache for one call, on a Resolver)
 
 ```php
-<?php
-$closure = $container->raw("pdo"); // this will return the closure, not the result
-// so you can invoke it and make a new PDO instance
-$db = $closure();
-?>
+$c->set('request', function () {
+    return new Request();
+});
+
+$c->get('request') === $c->get('request'); // true — cached singleton
+
+$c->make('request'); // a fresh Request, this one call only — 'request' is still a singleton afterward
+
+$c->make('missing'); // throws NotFoundException, same as get()
 ```
 
-#### Always get raw services
+### Storing a closure as a value
+
+`set()` invokes a stored closure (to produce the definition's value). To make
+`get()` return a closure itself instead, wrap it in another closure — only the
+outer one gets invoked:
 
 ```php
-<?php
-$container->set("name", $container->raw(function() {
-	return "John";
-}));
+$c->set('greet', function () {
+    return function () {
+        return 'hello';
+    };
+});
 
-is_string($container->get("name")); // FALSE
-// actually it will return stored closure
-?>
+$c->get('greet'); // the inner Closure
 ```
 
-### Checking existence of a key
+### Locking
 
 ```php
-<?php
-$container->set("param", "value");
-$container->set("null", NULL);
+$c->set('env', 'production');
+$c->lock('env');
 
-$container->has("param"); // TRUE
-$container->has("null"); // TRUE
-$container->has("unset"); // FALSE
-?>
+$c->set('env', 'staging'); // throws ContainerException
+$c->delete('env');         // throws ContainerException
+$c->isLocked('env');       // true
 ```
 
-### Deleting keys
+### Binding one id to another (on a Resolver)
 
-To delete a previously stored key use `delete($key)` method
-
-### Overriding keys and locking them
+`bind()` makes requesting `$id` resolve to `get()`-ing `$target` instead. No
+reflection involved — `$target` just needs to be resolvable itself.
 
 ```php
-<?php
-// set a "name"
-$container->set("name", "John");
-$container->get("name"); // "John"
-// override a "name"
-$container->set("name", "John Doe");
-$container->get("name"); // "John Doe"
+$c = new Resolver();
+$c->set('file.logger', function () {
+    return new FileLogger();
+});
+$c->bind('logger', 'file.logger');
 
-// lock a key
-$container->lock("name");
-// now if you try to override "name"
-$container->set("name", "Foo Bar"); // will throw ContainerException
-// or try to delete that key
-$container->delete("name"); // will throw ContainerException
-?>
+$c->get('logger'); // the FileLogger instance from 'file.logger'
 ```
-Note that there is no `unlock()` method.
 
+### Autowiring
 
-## Array Access
-
-Container implements build in PHP ArrayAccess class, which means that you can store, fetch, check and delete values using array notation
+Use `Injector` to get autowiring: `get()` will automatically instantiate
+any class that is neither registered nor bound, resolving its constructor
+dependencies recursively.
 
 ```php
-<?php
-$container["foo"] = "bar";
-echo $container["foo"]; // prints bar
-$container["pdo"] = function () {
-    return new PDO("mysql:dbname=testdb;host=127.0.0.1", "user", "pass");
-};
-$db = $container["pdo"]; // returns instance of the PDO class
-// checking for existence
-isset($container["foo"]); // TRUE
-// delete a key
-unset("foo");
-// checking for existence
-isset($container["foo"]); // FALSE
-?>
+use SugiPHP\Container\Injector;
+
+$c = new Injector();
+
+// No set() calls needed — resolved automatically
+$c->get(MyService::class);        // instantiated with no args
+$c->get(MyController::class);     // constructor deps resolved recursively
 ```
-Note that unlike typical arrays where trying to get a key which is not set will throw an error, container will remain silent and will return NULL.
 
-You can use `foreach` construct as well.
+Autowired instances are cached as singletons. Explicit `set()` registrations
+always take precedence.
 
-## Property Access
+### Resolution precedence
 
-Container uses magic `__set` and `__get` methods to allow access via properties
+For a given id, `Injector::get()` resolves in this order:
+
+1. An explicit registration — `set()` / `setFactory()`. Always wins; also clears any binding for the same id.
+2. A `bind()`-registered binding.
+3. Autowiring the id itself as a class name.
+
+Registering an id explicitly always overrides a binding for that same id, and vice versa — `set()` clears the id's binding, `bind()` clears the id's explicit registration.
+
+### Binding interfaces to concrete classes
+
+On an `Injector`, `bind()`'s target doesn't need to be registered — an
+instantiable class name is autowired automatically:
 
 ```php
-$container->set("foo") = "bar";
-$container["foo"] = "bar";
-$container->foo = "bar";
-// All of the above are doing the same job
+$c = new Injector();
+$c->bind(LoggerInterface::class, FileLogger::class);
 
-$container->get("foo"); // "bar"
-$container["foo"]; // "bar"
-$container->foo; // "bar"
+$c->get(LoggerInterface::class);          // returns an autowired FileLogger instance
+$c->get(ServiceWithLogger::class);        // LoggerInterface dep resolved automatically
 ```
+
+Autowiring fails with `NotFoundException` when:
+- The class does not exist
+- The class is abstract or an interface
+- A constructor parameter has a builtin type (scalar, array, etc.) with no default value
+- A constructor parameter is variadic
+- A constructor parameter has a union or intersection type
+
+```php
+// Must still be registered explicitly — scalar arg with no default
+$c->set('dsn', 'mysql:host=localhost;dbname=app');
+$c->set(PDO::class, fn() => new PDO($c->get('dsn')));
+```
+
+## Exceptions
+
+| Class | Thrown when |
+|---|---|
+| `ContainerException` | Overriding/deleting a locked key, a circular binding, or a circular dependency detected during autowiring |
+| `NotFoundException` | `get()` called for a key that does not exist, or autowiring fails to resolve a class |
+
+Both implement the corresponding PSR-11 interfaces.

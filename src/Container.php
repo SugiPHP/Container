@@ -1,225 +1,62 @@
 <?php
-/**
- * @package SugiPHP.Container
- * @author  Plamen Popov <tzappa@gmail.com>
- * @license http://opensource.org/licenses/mit-license.php (MIT License)
- */
+
+declare(strict_types=1);
 
 namespace SugiPHP\Container;
 
-use ArrayAccess;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
-class Container implements ArrayAccess, ContainerInterface
+/**
+ * Plain PSR-11 container: stores definitions and returns them as-is, invoking
+ * closures fresh on every get() call.
+ */
+class Container implements ContainerInterface
 {
     /**
-     * Table of Definitions
+     * @var array<string, mixed>
      */
-    protected $definitions = array();
+    private array $definitions = [];
 
     /**
-     * Table of returned objects
+     * @var array<string, bool>
      */
-    protected $objects = array();
-
-    /**
-     * Table of generated objects
-     */
-    protected $calcs = array();
-
-    /**
-     * Table of all closures that should always return fresh objects.
-     */
-    protected $factories;
-
-    /**
-     * Table of closures that get() method should always return raw results
-     */
-    protected $raws;
-
-    /**
-     * Table of locked keys that cannot be overridden and deleted
-     */
-    protected $locks = array();
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->factories = new \SplObjectStorage();
-        $this->raws = new \SplObjectStorage();
-    }
-
-    /**
-     * Property overloading magic method.
-     *
-     * @param string $name  Parameter name
-     * @param mixed  $value The value to be assigned for the parameter
-     *
-     * @return void
-     */
-    public function __set($name, $value)
-    {
-        return $this->set($name, $value);
-    }
-
-    /**
-     * Property overloading magic method.
-     *
-     * @param string $name Parameter name
-     *
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        return $this->get($name);
-    }
-
-    /**
-     * Property overloading magic method.
-     *
-     * @param string $name Parameter name
-     *
-     * @return boolean
-     */
-    public function __isset($name)
-    {
-        return $this->has($name);
-    }
-
-    /**
-     * Property overloading magic method.
-     *
-     * @param string $name Parameter name
-     *
-     * @return void
-     */
-    public function __unset($name)
-    {
-        return $this->delete($name);
-    }
+    private array $locks = [];
 
     /**
      * Sets a parameter defined in an unique key ID.
      * You can set objects as a closures.
      *
-     * @param string $id    Key Name
+     * @param string $id    Identifier of the entry to set
      * @param mixed  $value Value or closure function
      *
-     * @return void
+     * @throws ContainerException If the key is locked
      */
-    public function set($id, $value)
+    public function set(string $id, mixed $value): void
     {
-        if (!empty($this->locks[$id])) {
-            throw new ContainerException("Cannot override locked key {$id}");
-        }
+        $this->assertNotLocked($id, 'override');
         $this->definitions[$id] = $value;
-        $this->calcs[$id] = false;
-        // unset on override
-        unset($this->objects[$id]);
     }
 
     /**
      * Finds an entry of the container by its identifier and returns it.
+     * A closure definition is always invoked fresh — nothing is cached here.
      *
      * @param string $id Identifier of the entry to look for.
      *
-     * @throws NotFoundException  No entry was found for this identifier.
-     * @throws ContainerException Error while retrieving the entry.
-     *
-     * @return mixed Entry.
+     * @throws NotFoundException No entry was found for this identifier.
      */
-    public function get($id)
+    public function get(string $id): mixed
     {
-        if (!$this->has($id)) {
-            throw new NotFoundException("No entry was found for the identifier '$id'");
+        if (!array_key_exists($id, $this->definitions)) {
+            throw new NotFoundException("No entry was found for the identifier '{$id}'");
         }
 
-        if (method_exists($this->definitions[$id], "__invoke")) {
-            if (isset($this->raws[$this->definitions[$id]])) {
-                return $this->definitions[$id];
-            }
+        $definition = $this->definitions[$id];
 
-            if (isset($this->factories[$this->definitions[$id]])) {
-                return $this->definitions[$id]();
-            }
-
-            if ($this->calcs[$id]) {
-                return $this->objects[$id];
-            }
-            $obj = $this->definitions[$id]();
-            $this->objects[$id] = $obj;
-            $this->calcs[$id] = true;
-
-            return $obj;
-        }
-
-        return $this->definitions[$id];
+        return $definition instanceof \Closure ? $definition() : $definition;
     }
 
-    /**
-     * Gets or sets callable to return fresh objects.
-     * If a callable is given, then it sets that the get() method always
-     * to return new objects. If an string (key ID's) is given, then it
-     * will return new object.
-     *
-     * @param mixed $idOrClosure
-     *
-     * @return mixed
-     */
-    public function factory($idOrClosure)
-    {
-        if (is_object($idOrClosure) && method_exists($idOrClosure, "__invoke")) {
-            $this->factories->attach($idOrClosure);
-
-            return $idOrClosure;
-        }
-
-        if (!isset($this->definitions[$idOrClosure])) {
-            return null;
-        }
-
-        if (method_exists($this->definitions[$idOrClosure], '__invoke')) {
-            return $this->definitions[$idOrClosure]($this);
-        }
-
-        return $this->definitions[$idOrClosure];
-    }
-
-    /**
-     * Returns a raw definition. Used when a closure is set and
-     * you want to get the closure not the result of it.
-     *
-     * @param string $idOrClosure
-     *
-     * @return mixed Returns whatever it is stored in the key. NULL if
-     * nothing is stored.
-     */
-    public function raw($idOrClosure)
-    {
-        if (is_object($idOrClosure) && method_exists($idOrClosure, "__invoke")) {
-            $this->raws->attach($idOrClosure);
-
-            return $idOrClosure;
-        }
-
-        if (!isset($this->definitions[$idOrClosure])) {
-            return null;
-        }
-
-        return $this->definitions[$idOrClosure];
-    }
-
-    /**
-     * Returns true if the container can return an entry for the given identifier.
-     * Returns false otherwise.
-     *
-     * @param string $id Identifier of the entry to look for.
-     *
-     * @return boolean
-     */
-    public function has($id)
+    public function has(string $id): bool
     {
         return array_key_exists($id, $this->definitions);
     }
@@ -227,71 +64,36 @@ class Container implements ArrayAccess, ContainerInterface
     /**
      * Unsets a parameter or an object.
      *
-     * @param string $id
+     * @param string $id Key name
      *
-     * @return void
+     * @throws ContainerException If the key is locked
      */
-    public function delete($id)
+    public function delete(string $id): void
     {
-        if (!empty($this->locks[$id])) {
-            throw new ContainerException("Cannot delete locked key {$id}");
-        }
-        if (is_object($this->definitions[$id])) {
-            unset($this->factories[$this->definitions[$id]]);
-        }
-        unset($this->definitions[$id], $this->objects[$id], $this->calcs[$id]);
+        $this->assertNotLocked($id, 'delete');
+        unset($this->definitions[$id]);
     }
 
     /**
      * Lock the key, so it cannot be overwritten.
      * Note that there is no unlock method and will never be!
      *
-     * @param string $id
-     *
-     * @return mixed
+     * @param string $id Key name
      */
-    public function lock($id)
+    public function lock(string $id): void
     {
         $this->locks[$id] = true;
     }
 
-    /**
-     * Method is needed to implement \ArrayAccess.
-     *
-     * @see set() method
-     */
-    public function offsetSet($id, $value)
+    public function isLocked(string $id): bool
     {
-        $this->set($id, $value);
+        return !empty($this->locks[$id]);
     }
 
-    /**
-     * Method is needed to implement \ArrayAccess.
-     *
-     * @see get() method
-     */
-    public function offsetGet($id)
+    private function assertNotLocked(string $id, string $action): void
     {
-        return $this->get($id);
-    }
-
-    /**
-     * Method is needed to implement \ArrayAccess.
-     *
-     * @see has() method
-     */
-    public function offsetExists($id)
-    {
-        return $this->has($id);
-    }
-
-    /**
-     * Method is needed to implement \ArrayAccess.
-     *
-     * @see delete() method
-     */
-    public function offsetUnset($id)
-    {
-        $this->delete($id);
+        if ($this->isLocked($id)) {
+            throw new ContainerException("Cannot {$action} locked key '{$id}'");
+        }
     }
 }

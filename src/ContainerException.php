@@ -1,14 +1,15 @@
 <?php
-/**
- * SugiPHP Container Exception
- *
- * @package SugiPHP.Container
- * @author  Plamen Popov <tzappa@gmail.com>
- * @license http://opensource.org/licenses/mit-license.php (MIT License)
- */
+
+declare(strict_types=1);
 
 namespace SugiPHP\Container;
 
-class ContainerException extends \Exception implements \Interop\Container\Exception\ContainerException
+use Psr\Container\ContainerExceptionInterface;
+use Exception;
+
+/**
+ * Container Exception that implements PSR-11 Container Exception Interface
+ */
+class ContainerException extends Exception implements ContainerExceptionInterface
 {
 }

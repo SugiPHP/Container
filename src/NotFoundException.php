@@ -1,14 +1,14 @@
 <?php
-/**
- * SugiPHP Container Exception
- *
- * @package SugiPHP.Container
- * @author  Plamen Popov <tzappa@gmail.com>
- * @license http://opensource.org/licenses/mit-license.php (MIT License)
- */
+
+declare(strict_types=1);
 
 namespace SugiPHP\Container;
 
-class NotFoundException extends ContainerException implements \Interop\Container\Exception\NotFoundException
+use Psr\Container\NotFoundExceptionInterface;
+
+/**
+ * Container NotFound Exception that implements PSR-11 NotFoundExceptionInterface
+ */
+class NotFoundException extends ContainerException implements NotFoundExceptionInterface
 {
 }
