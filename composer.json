@@ -2,7 +2,6 @@
     "name": "sugiphp/container",
     "description": "PSR-11 compatible dependency injection container",
     "type": "library",
-    "version": "3.0",
     "license": "MIT",
     "authors": [
         {
